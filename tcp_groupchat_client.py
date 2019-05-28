@@ -7,7 +7,7 @@ logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 
 class ChatClient:
-    def __init__(self, rip='127.0.0.1', rport=9999):
+    def __init__(self, rip='192.168.11.198', rport=9999):
         self.raddr = (rip, rport)
         self.sock = socket.socket()
         self.event = threading.Event()
@@ -23,7 +23,7 @@ class ChatClient:
             logging.info(data)
 
     def send(self, msg):
-        self.sock.send(msg.encode())
+        self.sock.send('{}\n'.format(msg).encode())
 
     def stop(self):
         self.sock.close()

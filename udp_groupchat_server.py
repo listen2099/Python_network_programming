@@ -21,6 +21,7 @@ class ChatUdpServer:
 
     def recv(self):
         while not self.event.is_set():
+            localset = set()
             data, raddr = self.sock.recvfrom(1024)  # data, raddr, blocking
             logging.info(data)
             logging.info(raddr)
@@ -34,8 +35,13 @@ class ChatUdpServer:
                 continue
             self.clients[raddr] = current  # 只要有心跳或有效数据就刷新最后一次心跳时间
             msg = "ACK {}. from {}:{}".format(data, *raddr).encode()
-            for c in self.clients:
-                self.sock.sendto(msg, c)
+            for c, stamp in self.clients.items():
+                if current - stamp > self.interval:
+                    localset.add(c)
+                else:
+                    self.sock.sendto(msg, c)
+            for c in localset:
+                self.clients.pop(c, None)
 
     def stop(self):
         for c in self.clients:

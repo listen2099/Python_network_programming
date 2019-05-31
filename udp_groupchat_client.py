@@ -25,7 +25,7 @@ class ChatUdpClient:
 
     def heartbeat(self):
         while not self.event.wait(self.interval):
-
+            self.send('^hb^')
 
     def send(self, msg: str = 'quit'):
         self.sock.sendto(msg.encode(), self.raddr)

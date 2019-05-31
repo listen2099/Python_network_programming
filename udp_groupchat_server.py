@@ -1,17 +1,19 @@
 import socket
 import threading
 import logging
+import datetime
 
 FORMAT = "%(asctime)s %(threadName)s %(thread)d %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 
 class ChatUdpServer:
-    def __init__(self, ip='127.0.0.1', port=9999):
+    def __init__(self, ip='127.0.0.1', port=9999, interval=10):
         self.addr = (ip, port)
         self.sock = socket.socket(type=socket.SOCK_DGRAM)
         self.event = threading.Event()
-        self.clients = set()
+        self.clients = {}
+        self.interval = interval
 
     def start(self):
         self.sock.bind(self.addr)
@@ -22,11 +24,15 @@ class ChatUdpServer:
             data, raddr = self.sock.recvfrom(1024)  # data, raddr, blocking
             logging.info(data)
             logging.info(raddr)
-            if data.strip() == b'quit':
-                if raddr in self.clients:
-                    self.clients.remove(raddr)
+            current = datetime.datetime.now().timestamp()  # float
+            if data.strip() == b'^hb^':
+                self.clients[raddr] = current
                 continue
-            self.clients.add(raddr)
+            elif data.strip() == b'quit':
+                if raddr in self.clients:
+                    self.clients.pop(raddr)
+                continue
+            self.clients[raddr] = current  # 只要有心跳或有效数据就刷新最后一次心跳时间
             msg = "ACK {}. from {}:{}".format(data, *raddr).encode()
             for c in self.clients:
                 self.sock.sendto(msg, c)

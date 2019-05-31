@@ -5,14 +5,6 @@ import logging
 FORMAT = "%(asctime)s %(threadName)s %(thread)d %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
-# client = socket.socket(type=socket.SOCK_DGRAM)
-# raddr = ('127.0.0.1', 9999)
-# client.connect(raddr)
-# client.sendto(b'hello', raddr)
-# data, fromaddr = client.recvfrom(1024)
-#
-# logging.info(data)
-# client.close()
 
 class ChatUdpClient:
     def __init__(self, rip='127.0.0.1', rport=9999):

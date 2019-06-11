@@ -50,6 +50,8 @@ def main():
         logging.info(e)
     except KeyboardInterrupt:
         sys.exit(1)
+    finally:
+        sys.exit(0)
 
 
 if __name__ == '__main__':

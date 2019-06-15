@@ -21,12 +21,11 @@ class ChatServer:
         # threading.Thread(target=self.accept).start()
         self.selector.register(self.sock, selectors.EVENT_READ, self.accept)
 
-        threading.Thread(target=self._select).start()
+        threading.Thread(target=self._select, name='selector').start()
 
     def _select(self):
         while True:
             events = self.selector.select()
-            logging.info(threading.enumerate())
             for key, mask in events:
                 callback = key.data  # data = self.accept
                 callback(key.fileobj)  # self.accept(fobj, mask)
@@ -43,13 +42,15 @@ class ChatServer:
             self.selector.unregister(newsock)
             newsock.close()
             return
-        newsock.send(data)
+        for key in self.selector.get_map().values():
+            if key.data == self.recv:
+                key.fileobj.send(data)
 
     def stop(self):
-        fileonjs = []
+        fileobjs = []
         for fd, key in self.selector.get_map().items():  # fd : key
-            fileonjs.append(key.fileobj)
-        for obj in fileonjs:
+            fileobjs.append(key.fileobj)
+        for obj in fileobjs:
             self.selector.unregister(obj)
             obj.close()
         self.selector.close()

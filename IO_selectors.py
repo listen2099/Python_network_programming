@@ -20,7 +20,7 @@ class ChatServer:
         self.sock.listen()
         self.sock.setblocking(False)
         # threading.Thread(target=self.accept).start()
-        self.selector.register(self.sock, selectors.EVENT_READ | selectors.EVENT_WRITE, self.accept)
+        self.selector.register(self.sock, selectors.EVENT_READ, self.accept)
 
         threading.Thread(target=self._select, name='selector').start()
 
